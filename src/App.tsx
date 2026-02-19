@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import { Menu, User, Bell, Search } from 'lucide-react';
 import { HomePage } from './components/HomePage';
 import { Sidebar } from './components/Sidebar';
@@ -8,6 +9,9 @@ import { ExamManagement } from './components/pages/ExamManagement';
 import { FinanceManagement } from './components/pages/FinanceManagement';
 import { AnalyticsDashboard } from './components/pages/AnalyticsDashboard';
 import { SystemSettings } from './components/pages/SystemSettings';
+import { SuperAdminPortal } from './components/pages/SuperAdminPortal';
+import { LoginRole } from './components/auth/LoginPanel';
+import { AccessPortalPage } from './components/pages/AccessPortalPage';
 import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 import {
@@ -20,14 +24,13 @@ import {
 } from './components/ui/dropdown-menu';
 
 export default function App() {
-  const [showDashboard, setShowDashboard] = useState(false);
+  const navigate = useNavigate();
   const [activePage, setActivePage] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // If not showing dashboard, show the home page
-  if (!showDashboard) {
-    return <HomePage onNavigateToDashboard={() => setShowDashboard(true)} />;
-  }
+  const handleLoginSuccess = (role: LoginRole) => {
+    navigate(role === 'super-admin' ? '/super-admin' : '/tenant');
+  };
 
   const renderPage = () => {
     switch (activePage) {
@@ -92,9 +95,8 @@ export default function App() {
     return pageTitles[activePage] || 'SCHOLIX';
   };
 
-  return (
+  const tenantShell = (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
       <Sidebar
         activePage={activePage}
         onNavigate={setActivePage}
@@ -102,9 +104,7 @@ export default function App() {
         onClose={() => setIsSidebarOpen(false)}
       />
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Navigation */}
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6">
           <div className="flex items-center gap-4">
             <Button
@@ -122,16 +122,11 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Search */}
             <div className="hidden md:flex relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search..."
-                className="pl-10 w-64"
-              />
+              <Input placeholder="Search..." className="pl-10 w-64" />
             </div>
 
-            {/* Notifications */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
@@ -162,7 +157,6 @@ export default function App() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* User Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2">
@@ -182,10 +176,7 @@ export default function App() {
                 <DropdownMenuItem>Change Password</DropdownMenuItem>
                 <DropdownMenuItem>Activity Log</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  className="text-red-600"
-                  onClick={() => setShowDashboard(false)}
-                >
+                <DropdownMenuItem className="text-red-600" onClick={() => navigate('/login')}>
                   Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -193,11 +184,21 @@ export default function App() {
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-          {renderPage()}
-        </main>
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6">{renderPage()}</main>
       </div>
     </div>
+  );
+
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage onNavigateToDashboard={() => navigate('/login')} />} />
+      <Route
+        path="/login"
+        element={<AccessPortalPage onLoginSuccess={handleLoginSuccess} onBackToMarketing={() => navigate('/')} />}
+      />
+      <Route path="/tenant" element={tenantShell} />
+      <Route path="/super-admin" element={<SuperAdminPortal onSignOut={() => navigate('/login')} />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
