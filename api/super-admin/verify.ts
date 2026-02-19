@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 
-import { verifySuperAdminCredentials } from '../_lib/super-admin'
+import { verifySuperAdminCredentials } from '../_lib/super-admin.js'
 
 function methodNotAllowed(res: VercelResponse) {
   res.setHeader('Allow', 'POST')

@@ -3,7 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import {
   createOrUpdateSuperAdmin,
   fetchSuperAdmin,
-} from '../_lib/super-admin'
+} from '../_lib/super-admin.js'
 
 function methodNotAllowed(res: VercelResponse) {
   res.setHeader('Allow', 'GET,POST')
