@@ -1,29 +1,95 @@
-import React, { useState } from 'react';
-import { Save, Upload, School, Shield, Bell, Palette, Database, Globe } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Switch } from '../ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
-import { Separator } from '../ui/separator';
+import React, { useEffect, useMemo, useState } from 'react'
+import { Save, Upload, School, Shield, Bell, Plug } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { Switch } from '../ui/switch'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
+import { Separator } from '../ui/separator'
+import { useToast } from '../ui/use-toast'
+import {
+  fetchTenantSettings,
+  TenantSettingsPayload,
+  TenantSettingsResponse,
+  updateTenantSettings,
+} from '../../lib/tenantSettingsClient'
+
+const fallbackSettings: TenantSettingsPayload = {
+  schoolName: 'Excellence Academy',
+  schoolAddress: '123 Education Road, Lagos, Nigeria',
+  schoolEmail: 'info@excellenceacademy.edu.ng',
+  schoolPhone: '+234-801-234-5678',
+  currentSession: '2025/2026',
+  currentTerm: 'First Term',
+  enableSMS: true,
+  enableEmail: true,
+  enableBiometric: false,
+  enableOnlinePayment: true,
+  autoBackup: true,
+  twoFactorAuth: false,
+  maintenanceMode: false,
+  logoUrl: null,
+}
 
 export function SystemSettings() {
-  const [settings, setSettings] = useState({
-    schoolName: 'Excellence Academy',
-    schoolAddress: '123 Education Road, Lagos, Nigeria',
-    schoolEmail: 'info@excellenceacademy.edu.ng',
-    schoolPhone: '+234-801-234-5678',
-    currentSession: '2025/2026',
-    currentTerm: 'First Term',
-    enableSMS: true,
-    enableEmail: true,
-    enableBiometric: false,
-    enableOnlinePayment: true,
-    autoBackup: true,
-    twoFactorAuth: false,
-    maintenanceMode: false,
-  });
+  const { toast } = useToast()
+  const [settings, setSettings] = useState<TenantSettingsPayload | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadSettings() {
+      setIsLoading(true)
+      try {
+        const remote = await fetchTenantSettings()
+        if (cancelled) return
+        setSettings(remote)
+        setLastUpdated(remote.updatedAt)
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Unable to load tenant settings.'
+        toast({ variant: 'destructive', title: 'Failed to load settings', description: message })
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadSettings()
+    return () => {
+      cancelled = true
+    }
+  }, [toast])
+
+  const handleSave = async () => {
+    if (!settings) return
+    try {
+      setIsSaving(true)
+      const updated = await updateTenantSettings(settings)
+      setSettings(updated)
+      setLastUpdated(updated.updatedAt)
+      toast({ title: 'Settings saved', description: 'System configuration is now up to date.' })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to save settings.'
+      toast({ variant: 'destructive', title: 'Save failed', description: message })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const disableForm = isLoading || !settings
+  const lastSavedLabel = useMemo(() => {
+    if (!lastUpdated) return 'Not yet saved'
+    const date = new Date(lastUpdated)
+    return `Last updated ${date.toLocaleString()}`
+  }, [lastUpdated])
+
+  const updateSetting = <K extends keyof TenantSettingsPayload>(key: K, value: TenantSettingsPayload[K]) => {
+    setSettings((prev) => (prev ? { ...prev, [key]: value } : prev))
+  }
 
   return (
     <div className="space-y-6">
@@ -33,10 +99,13 @@ export function SystemSettings() {
           <h1 className="text-2xl font-bold text-gray-900">System Settings</h1>
           <p className="text-sm text-gray-600 mt-1">Configure system-wide settings and preferences</p>
         </div>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Save className="w-4 h-4 mr-2" />
-          Save Changes
-        </Button>
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <p className="text-xs uppercase tracking-wide text-gray-500">{lastSavedLabel}</p>
+          <Button className="bg-blue-600 hover:bg-blue-700" disabled={disableForm || isSaving} onClick={handleSave}>
+            <Save className="w-4 h-4 mr-2" />
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="school" className="space-y-4">

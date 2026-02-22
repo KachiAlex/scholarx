@@ -5,6 +5,14 @@ import { HomePage } from './components/HomePage';
 import { Sidebar } from './components/Sidebar';
 import { Dashboard } from './components/pages/Dashboard';
 import { StudentsList } from './components/pages/StudentsList';
+import { StudentEnrollment } from './components/pages/StudentEnrollment';
+import { StudentPromotion } from './components/pages/StudentPromotion';
+import { StudentDocuments } from './components/pages/StudentDocuments';
+import { StudentHealth } from './components/pages/StudentHealth';
+import { StudentAttendance } from './components/pages/StudentAttendance';
+import { TimetableScheduling } from './components/pages/TimetableScheduling';
+import { StaffHR } from './components/pages/StaffHR';
+import { CommunicationHub } from './components/pages/CommunicationHub';
 import { ExamManagement } from './components/pages/ExamManagement';
 import { FinanceManagement } from './components/pages/FinanceManagement';
 import { AnalyticsDashboard } from './components/pages/AnalyticsDashboard';
@@ -37,10 +45,40 @@ export default function App() {
       case 'dashboard':
         return <Dashboard />;
       case 'students-list':
-      case 'student-enrollment':
-      case 'student-promotion':
-      case 'student-documents':
         return <StudentsList />;
+      case 'student-enrollment':
+        return <StudentEnrollment />;
+      case 'student-promotion':
+        return <StudentPromotion />;
+      case 'student-documents':
+        return <StudentDocuments />;
+      case 'student-health':
+        return <StudentHealth />;
+      case 'student-attendance':
+        return <StudentAttendance />;
+      case 'class-timetable':
+      case 'teacher-timetable':
+      case 'exam-timetable':
+        return <TimetableScheduling
+          initialView={
+            activePage === 'teacher-timetable'
+              ? 'teacher'
+              : activePage === 'exam-timetable'
+              ? 'exam'
+              : 'class'
+          }
+        />;
+      case 'staff-list':
+      case 'staff-roles':
+      case 'payroll':
+      case 'leave-management':
+      case 'performance':
+        return <StaffHR />;
+      case 'announcements':
+      case 'bulk-notifications':
+      case 'parent-messaging':
+      case 'communication-logs':
+        return <CommunicationHub />;
       case 'exam-creation':
       case 'question-bank':
       case 'live-monitoring':

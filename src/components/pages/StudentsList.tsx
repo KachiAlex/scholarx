@@ -1,5 +1,19 @@
-import React, { useState } from 'react';
-import { Search, Filter, Download, UserPlus, MoreVertical, Eye, Edit, Trash2 } from 'lucide-react';
+import React, { useMemo, useState } from 'react'
+import {
+  Search,
+  Filter,
+  Download,
+  UserPlus,
+  MoreVertical,
+  Eye,
+  Edit,
+  Trash2,
+  AlertTriangle,
+  BookOpen,
+  MapPin,
+  Phone,
+  Mail,
+} from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -17,10 +31,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
-import { Label } from '../ui/label';
-import { Select } from '../ui/select';
+} from '../ui/table'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
+import { Label } from '../ui/label'
 
 interface Student {
   id: string;
@@ -46,49 +59,69 @@ const mockStudents: Student[] = [
 ];
 
 export function StudentsList() {
-  const [students, setStudents] = useState(mockStudents);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [students] = useState(mockStudents)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [classFilter, setClassFilter] = useState<'all' | string>('all')
+  const [statusFilter, setStatusFilter] = useState<'all' | Student['status']>('all')
 
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.admissionNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.class.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStudents = useMemo(() => {
+    return students.filter((student) => {
+      const matchesSearch =
+        student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.admissionNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        student.guardian.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesClass = classFilter === 'all' || student.class === classFilter
+      const matchesStatus = statusFilter === 'all' || student.status === statusFilter
+      return matchesSearch && matchesClass && matchesStatus
+    })
+  }, [students, searchTerm, classFilter, statusFilter])
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Active':
-        return 'bg-green-100 text-green-700';
+        return 'bg-emerald-100 text-emerald-700'
       case 'Suspended':
-        return 'bg-red-100 text-red-700';
+        return 'bg-amber-100 text-amber-700'
       case 'Graduated':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-slate-100 text-slate-700'
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-gray-100 text-gray-700'
     }
-  };
+  }
+
+  const atRiskStudents = students.filter((student) => student.status !== 'Active').slice(0, 3)
+  const totalActive = students.filter((student) => student.status === 'Active').length
+  const totalMale = students.filter((student) => student.gender === 'Male').length
+  const totalFemale = students.filter((student) => student.gender === 'Female').length
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Student Management</h1>
-          <p className="text-sm text-gray-600 mt-1">Manage all student records and information</p>
+          <p className="text-xs uppercase tracking-wide text-blue-600 font-semibold">Lifecycle</p>
+          <h1 className="text-2xl font-bold text-gray-900">Student management</h1>
+          <p className="text-sm text-gray-600 mt-1">Monitor admissions, wellbeing, and documents in one workspace.</p>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add Student
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline">
+            <Download className="w-4 h-4 mr-2" />
+            Bulk export
+          </Button>
+          <Button onClick={() => setIsAddDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+            <UserPlus className="w-4 h-4 mr-2" />
+            Add student
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 relative">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+            <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Search by name, admission no, or class..."
@@ -97,14 +130,34 @@ export function StudentsList() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            <Button variant="outline">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
+            <div className="flex flex-wrap gap-3">
+              <select
+                className="rounded-xl border border-gray-300 px-3 py-2 text-sm"
+                value={classFilter}
+                onChange={(event) => setClassFilter(event.target.value as typeof classFilter)}
+              >
+                <option value="all">All classes</option>
+                {['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'].map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <select
+                className="rounded-xl border border-gray-300 px-3 py-2 text-sm"
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}
+              >
+                <option value="all">All statuses</option>
+                <option value="Active">Active</option>
+                <option value="Suspended">Suspended</option>
+                <option value="Graduated">Graduated</option>
+              </select>
+              <Button variant="outline">
+                <Filter className="w-4 h-4 mr-2" />
+                Advanced filters
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -113,32 +166,84 @@ export function StudentsList() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Total Students</p>
-            <p className="text-2xl font-bold text-gray-900 mt-1">{students.length}</p>
+            <p className="text-xs uppercase tracking-wide text-gray-500">Total students</p>
+            <p className="text-3xl font-bold text-gray-900 mt-2">{students.length}</p>
+            <p className="text-xs text-gray-500 mt-1">Updated 5 mins ago</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Active</p>
-            <p className="text-2xl font-bold text-green-600 mt-1">
-              {students.filter(s => s.status === 'Active').length}
-            </p>
+            <p className="text-xs uppercase tracking-wide text-gray-500">Active</p>
+            <p className="text-3xl font-bold text-emerald-600 mt-2">{totalActive}</p>
+            <p className="text-xs text-emerald-600 mt-1">Retention 97%</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Male Students</p>
-            <p className="text-2xl font-bold text-blue-600 mt-1">
-              {students.filter(s => s.gender === 'Male').length}
-            </p>
+            <p className="text-xs uppercase tracking-wide text-gray-500">Male</p>
+            <p className="text-3xl font-bold text-blue-600 mt-2">{totalMale}</p>
+            <p className="text-xs text-gray-500 mt-1">52% of cohort</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-sm text-gray-600">Female Students</p>
-            <p className="text-2xl font-bold text-purple-600 mt-1">
-              {students.filter(s => s.gender === 'Female').length}
-            </p>
+            <p className="text-xs uppercase tracking-wide text-gray-500">Female</p>
+            <p className="text-3xl font-bold text-purple-600 mt-2">{totalFemale}</p>
+            <p className="text-xs text-gray-500 mt-1">48% of cohort</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Risk + pipelines */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <AlertTriangle className="w-4 h-4 text-amber-500" />
+              At-risk queue
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {atRiskStudents.length === 0 && <p className="text-sm text-gray-500">No escalations at the moment.</p>}
+            {atRiskStudents.map((student) => (
+              <div key={student.id} className="rounded-2xl border border-gray-100 p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{student.name}</p>
+                  <p className="text-xs text-gray-500">{student.class} {student.arm} • Guardian {student.guardian}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className={getStatusColor(student.status)}>{student.status}</Badge>
+                  <Button variant="ghost" size="sm" className="text-blue-600">
+                    Open profile
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <BookOpen className="w-4 h-4 text-blue-600" />
+              Enrollment signals
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-gray-600">
+            <div className="flex items-center justify-between">
+              <span>Pending applications</span>
+              <span className="font-semibold text-gray-900">18</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Transfers in progress</span>
+              <span className="font-semibold text-gray-900">5</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span>Scholarships awaiting docs</span>
+              <span className="font-semibold text-amber-600">3</span>
+            </div>
+            <Button variant="outline" size="sm" className="w-full mt-2">
+              View pipeline
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -146,7 +251,10 @@ export function StudentsList() {
       {/* Students Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Students ({filteredStudents.length})</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>All students ({filteredStudents.length})</CardTitle>
+            <p className="text-xs text-gray-500">Showing filtered results</p>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -212,40 +320,40 @@ export function StudentsList() {
       <Dialog open={!!selectedStudent} onOpenChange={() => setSelectedStudent(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Student Details</DialogTitle>
+            <DialogTitle>Student details</DialogTitle>
           </DialogHeader>
           {selectedStudent && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-gray-600">Admission Number</p>
-                  <p className="font-medium">{selectedStudent.admissionNo}</p>
+                <div className="rounded-2xl border border-gray-100 p-3">
+                  <p className="text-xs text-gray-500">Admission number</p>
+                  <p className="font-semibold text-gray-900">{selectedStudent.admissionNo}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Full Name</p>
-                  <p className="font-medium">{selectedStudent.name}</p>
+                <div className="rounded-2xl border border-gray-100 p-3">
+                  <p className="text-xs text-gray-500">Status</p>
+                  <Badge className={getStatusColor(selectedStudent.status)}>{selectedStudent.status}</Badge>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Class</p>
-                  <p className="font-medium">{selectedStudent.class} {selectedStudent.arm}</p>
+                <div className="rounded-2xl border border-gray-100 p-3">
+                  <p className="text-xs text-gray-500">Class & arm</p>
+                  <p className="font-semibold text-gray-900">
+                    {selectedStudent.class} {selectedStudent.arm}
+                  </p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Gender</p>
-                  <p className="font-medium">{selectedStudent.gender}</p>
+                <div className="rounded-2xl border border-gray-100 p-3">
+                  <p className="text-xs text-gray-500">Gender</p>
+                  <p className="font-semibold text-gray-900">{selectedStudent.gender}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Guardian</p>
-                  <p className="font-medium">{selectedStudent.guardian}</p>
+              </div>
+              <div className="rounded-2xl border border-gray-100 p-4 space-y-2">
+                <p className="text-xs uppercase tracking-wide text-gray-500">Guardian contact</p>
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <MapPin className="w-4 h-4 text-gray-400" /> {selectedStudent.guardian}
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Phone</p>
-                  <p className="font-medium">{selectedStudent.phone}</p>
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <Phone className="w-4 h-4 text-gray-400" /> {selectedStudent.phone}
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600">Status</p>
-                  <Badge className={getStatusColor(selectedStudent.status)}>
-                    {selectedStudent.status}
-                  </Badge>
+                <div className="flex items-center gap-2 text-sm text-gray-700">
+                  <Mail className="w-4 h-4 text-gray-400" /> guardian@school.edu
                 </div>
               </div>
             </div>
