@@ -20,7 +20,25 @@ export interface SuperAdminAccountResponse {
   updatedAt: string
 }
 
+const hasDatabase = Boolean(
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRES_URL_NON_POOLING ||
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_PRISMA_URL,
+)
+
 let tableReady: Promise<void> | null = null
+
+interface SuperAdminMemoryRecord extends SuperAdminAccountResponse {
+  passwordHash: string
+}
+
+let memoryAccount: SuperAdminMemoryRecord | null = null
+
+function mapMemory(record: SuperAdminMemoryRecord): SuperAdminAccountResponse {
+  const { passwordHash: _passwordHash, ...rest } = record
+  return rest
+}
 
 function mapRow(row: SuperAdminRow): SuperAdminAccountResponse {
   return {
@@ -34,6 +52,7 @@ function mapRow(row: SuperAdminRow): SuperAdminAccountResponse {
 }
 
 export async function ensureSuperAdminTable() {
+  if (!hasDatabase) return
   if (!tableReady) {
     tableReady = sql`
       CREATE TABLE IF NOT EXISTS super_admin_accounts (
@@ -51,6 +70,10 @@ export async function ensureSuperAdminTable() {
 }
 
 export async function fetchSuperAdmin() {
+  if (!hasDatabase) {
+    return memoryAccount ? mapMemory(memoryAccount) : null
+  }
+
   await ensureSuperAdminTable()
   const result = await sql<SuperAdminRow>`SELECT * FROM super_admin_accounts LIMIT 1`
   if (result.rowCount === 0) return null
@@ -63,8 +86,24 @@ export async function createOrUpdateSuperAdmin(data: {
   email: string
   password: string
 }) {
-  await ensureSuperAdminTable()
   const passwordHash = await hash(data.password)
+
+  if (!hasDatabase) {
+    const now = new Date().toISOString()
+    const createdAt = memoryAccount?.createdAt ?? now
+    memoryAccount = {
+      id: memoryAccount?.id ?? 1,
+      fullName: data.fullName,
+      organization: data.organization,
+      email: data.email,
+      createdAt,
+      updatedAt: now,
+      passwordHash,
+    }
+    return mapMemory(memoryAccount)
+  }
+
+  await ensureSuperAdminTable()
   const result = await sql<SuperAdminRow>`
     INSERT INTO super_admin_accounts (full_name, organization, email, password_hash)
     VALUES (${data.fullName}, ${data.organization}, ${data.email}, ${passwordHash})
@@ -79,6 +118,14 @@ export async function createOrUpdateSuperAdmin(data: {
 }
 
 export async function verifySuperAdminCredentials(email: string, password: string) {
+  if (!hasDatabase) {
+    if (!memoryAccount) return null
+    if (memoryAccount.email !== email) return null
+    const valid = await verify(memoryAccount.passwordHash, password)
+    if (!valid) return null
+    return mapMemory(memoryAccount)
+  }
+
   await ensureSuperAdminTable()
   const result = await sql<SuperAdminRow>`SELECT * FROM super_admin_accounts WHERE email = ${email} LIMIT 1`
   if (result.rowCount === 0) return null
