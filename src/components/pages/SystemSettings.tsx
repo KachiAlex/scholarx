@@ -32,6 +32,10 @@ const fallbackSettings: TenantSettingsPayload = {
   logoUrl: null,
 }
 
+function cloneFallback(): TenantSettingsPayload {
+  return structuredClone(fallbackSettings)
+}
+
 export function SystemSettings() {
   const { toast } = useToast()
   const [settings, setSettings] = useState<TenantSettingsPayload | null>(null)
@@ -51,6 +55,11 @@ export function SystemSettings() {
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Unable to load tenant settings.'
         toast({ variant: 'destructive', title: 'Failed to load settings', description: message })
+        if (!cancelled) {
+          const fallback = cloneFallback()
+          setSettings(fallback)
+          setLastUpdated(new Date().toISOString())
+        }
       } finally {
         if (!cancelled) {
           setIsLoading(false)
@@ -88,7 +97,18 @@ export function SystemSettings() {
   }, [lastUpdated])
 
   const updateSetting = <K extends keyof TenantSettingsPayload>(key: K, value: TenantSettingsPayload[K]) => {
-    setSettings((prev) => (prev ? { ...prev, [key]: value } : prev))
+    setSettings((prev) => {
+      const base = prev ?? cloneFallback()
+      return { ...base, [key]: value }
+    })
+  }
+
+  if (!settings) {
+    return (
+      <div className="space-y-4">
+        <p className="text-sm text-gray-600">Loading tenant settings…</p>
+      </div>
+    )
   }
 
   return (
