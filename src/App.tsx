@@ -17,6 +17,11 @@ import { ExamManagement } from './components/pages/ExamManagement';
 import { FinanceManagement } from './components/pages/FinanceManagement';
 import { AnalyticsDashboard } from './components/pages/AnalyticsDashboard';
 import { SystemSettings } from './components/pages/SystemSettings';
+import { SchoolProfile } from './components/pages/SchoolProfile';
+import { RolesPermissions } from './components/pages/RolesPermissions';
+import { UserAccounts } from './components/pages/UserAccounts';
+import { AuditLogs } from './components/pages/AuditLogs';
+import { ImportExport } from './components/pages/ImportExport';
 import { SuperAdminPortal } from './components/pages/SuperAdminPortal';
 import { LoginRole } from './components/auth/LoginPanel';
 import { AccessPortalPage } from './components/pages/AccessPortalPage';
@@ -98,12 +103,17 @@ export default function App() {
       case 'financial-analytics':
         return <AnalyticsDashboard />;
       case 'system-settings':
-      case 'school-profile':
-      case 'roles-permissions':
-      case 'user-accounts':
-      case 'audit-logs':
-      case 'import-export':
         return <SystemSettings />;
+      case 'school-profile':
+        return <SchoolProfile />;
+      case 'roles-permissions':
+        return <RolesPermissions />;
+      case 'user-accounts':
+        return <UserAccounts />;
+      case 'audit-logs':
+        return <AuditLogs />;
+      case 'import-export':
+        return <ImportExport />;
       default:
         return (
           <div className="flex items-center justify-center h-full">
