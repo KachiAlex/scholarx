@@ -22,6 +22,13 @@ import { RolesPermissions } from './components/pages/RolesPermissions';
 import { UserAccounts } from './components/pages/UserAccounts';
 import { AuditLogs } from './components/pages/AuditLogs';
 import { ImportExport } from './components/pages/ImportExport';
+import { AcademicStructureOverview } from './components/pages/AcademicStructureOverview';
+import { ClassesAndArms } from './components/pages/ClassesAndArms';
+import { SubjectsCatalog } from './components/pages/SubjectsCatalog';
+import { TeacherAllocation } from './components/pages/TeacherAllocation';
+import { CAConfiguration } from './components/pages/CAConfiguration';
+import { GradingPolicy } from './components/pages/GradingPolicy';
+import { AcademicCalendar } from './components/pages/AcademicCalendar';
 import { SuperAdminPortal } from './components/pages/SuperAdminPortal';
 import { LoginRole } from './components/auth/LoginPanel';
 import { AccessPortalPage } from './components/pages/AccessPortalPage';
@@ -102,6 +109,20 @@ export default function App() {
       case 'attendance-analytics':
       case 'financial-analytics':
         return <AnalyticsDashboard />;
+      case 'academic-structure':
+        return <AcademicStructureOverview />;
+      case 'classes':
+        return <ClassesAndArms />;
+      case 'subjects':
+        return <SubjectsCatalog />;
+      case 'teacher-allocation':
+        return <TeacherAllocation />;
+      case 'ca-configuration':
+        return <CAConfiguration />;
+      case 'grading-policy':
+        return <GradingPolicy />;
+      case 'academic-calendar':
+        return <AcademicCalendar />;
       case 'system-settings':
         return <SystemSettings />;
       case 'school-profile':
