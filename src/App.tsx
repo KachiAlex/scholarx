@@ -29,6 +29,12 @@ import { TeacherAllocation } from './components/pages/TeacherAllocation';
 import { CAConfiguration } from './components/pages/CAConfiguration';
 import { GradingPolicy } from './components/pages/GradingPolicy';
 import { AcademicCalendar } from './components/pages/AcademicCalendar';
+import { CAScoreEntry } from './components/pages/CAScoreEntry';
+import { ResultComputation } from './components/pages/ResultComputation';
+import { ResultApproval } from './components/pages/ResultApproval';
+import { Broadsheets } from './components/pages/Broadsheets';
+import { Transcripts } from './components/pages/Transcripts';
+import { ResultPublishing } from './components/pages/ResultPublishing';
 import { SuperAdminPortal } from './components/pages/SuperAdminPortal';
 import { LoginRole } from './components/auth/LoginPanel';
 import { AccessPortalPage } from './components/pages/AccessPortalPage';
@@ -119,6 +125,18 @@ export default function App() {
         return <TeacherAllocation />;
       case 'ca-configuration':
         return <CAConfiguration />;
+      case 'ca-entry':
+        return <CAScoreEntry />;
+      case 'result-computation':
+        return <ResultComputation />;
+      case 'result-approval':
+        return <ResultApproval />;
+      case 'broadsheets':
+        return <Broadsheets />;
+      case 'transcripts':
+        return <Transcripts />;
+      case 'result-publishing':
+        return <ResultPublishing />;
       case 'grading-policy':
         return <GradingPolicy />;
       case 'academic-calendar':
