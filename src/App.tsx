@@ -35,6 +35,13 @@ import { ResultApproval } from './components/pages/ResultApproval';
 import { Broadsheets } from './components/pages/Broadsheets';
 import { Transcripts } from './components/pages/Transcripts';
 import { ResultPublishing } from './components/pages/ResultPublishing';
+import { AccessControl } from './components/pages/AccessControl';
+import { SessionManagement } from './components/pages/SessionManagement';
+import { DataEncryption } from './components/pages/DataEncryption';
+import { BackupRestore } from './components/pages/BackupRestore';
+import { PendingApprovals } from './components/pages/PendingApprovals';
+import { SystemAlerts } from './components/pages/SystemAlerts';
+import { TaskManagement } from './components/pages/TaskManagement';
 import { SuperAdminPortal } from './components/pages/SuperAdminPortal';
 import { LoginRole } from './components/auth/LoginPanel';
 import { AccessPortalPage } from './components/pages/AccessPortalPage';
@@ -141,6 +148,20 @@ export default function App() {
         return <GradingPolicy />;
       case 'academic-calendar':
         return <AcademicCalendar />;
+      case 'access-control':
+        return <AccessControl />;
+      case 'session-management':
+        return <SessionManagement />;
+      case 'data-encryption':
+        return <DataEncryption />;
+      case 'backup-restore':
+        return <BackupRestore />;
+      case 'pending-approvals':
+        return <PendingApprovals />;
+      case 'system-alerts':
+        return <SystemAlerts />;
+      case 'task-management':
+        return <TaskManagement />;
       case 'system-settings':
         return <SystemSettings />;
       case 'school-profile':
