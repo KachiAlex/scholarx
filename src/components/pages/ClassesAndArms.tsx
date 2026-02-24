@@ -1,19 +1,20 @@
-import React, { useMemo } from 'react'
-import { Building2, Users, Sparkles, AlertTriangle, Download, Filter, UserPlus, Merge } from 'lucide-react'
+import React, { useMemo, useState } from 'react'
+import { Building2, Users, Sparkles, AlertTriangle, Download, Filter, UserPlus, Merge, SplitSquareHorizontal } from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Input } from '../ui/input'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 
 const levelSnapshot = [
-  { level: 'JSS 1', arms: 4, capacity: 160, enrolled: 148, lead: 'Mrs. Salami', trend: '+4%' },
-  { level: 'JSS 2', arms: 4, capacity: 160, enrolled: 154, lead: 'Mr. Muraina', trend: '+2%' },
-  { level: 'JSS 3', arms: 4, capacity: 160, enrolled: 167, lead: 'Mrs. Uwa', trend: '+5%' },
-  { level: 'SS 1', arms: 5, capacity: 200, enrolled: 181, lead: 'Mr. Bello', trend: '+1%' },
-  { level: 'SS 2', arms: 5, capacity: 200, enrolled: 176, lead: 'Mrs. Ikpe', trend: '-3%' },
-  { level: 'SS 3', arms: 5, capacity: 200, enrolled: 189, lead: 'Mr. Aina', trend: '+6%' },
+  { level: 'JSS 1', arms: 4, capacity: 160, enrolled: 148, lead: 'Mrs. Salami', trend: '+4%', genderMix: '52% ♀ | 48% ♂', boardingSplit: 'Day 82% | Boarding 18%' },
+  { level: 'JSS 2', arms: 4, capacity: 160, enrolled: 154, lead: 'Mr. Muraina', trend: '+2%', genderMix: '49% ♀ | 51% ♂', boardingSplit: 'Day 80% | Boarding 20%' },
+  { level: 'JSS 3', arms: 4, capacity: 160, enrolled: 167, lead: 'Mrs. Uwa', trend: '+5%', genderMix: '45% ♀ | 55% ♂', boardingSplit: 'Day 77% | Boarding 23%' },
+  { level: 'SS 1', arms: 5, capacity: 200, enrolled: 181, lead: 'Mr. Bello', trend: '+1%', genderMix: '53% ♀ | 47% ♂', boardingSplit: 'Day 69% | Boarding 31%' },
+  { level: 'SS 2', arms: 5, capacity: 200, enrolled: 176, lead: 'Mrs. Ikpe', trend: '-3%', genderMix: '50% ♀ | 50% ♂', boardingSplit: 'Day 65% | Boarding 35%' },
+  { level: 'SS 3', arms: 5, capacity: 200, enrolled: 189, lead: 'Mr. Aina', trend: '+6%', genderMix: '48% ♀ | 52% ♂', boardingSplit: 'Day 60% | Boarding 40%' },
 ]
 
 const restructuringQueue = [
@@ -23,19 +24,25 @@ const restructuringQueue = [
 ]
 
 const classDirectory = [
-  { level: 'JSS 1', arm: 'A', advisor: 'Mrs. Adekunle', capacity: 40, enrolled: 37, shift: 'Morning' },
-  { level: 'JSS 1', arm: 'B', advisor: 'Mr. Lucas', capacity: 40, enrolled: 41, shift: 'Morning' },
-  { level: 'JSS 1', arm: 'C', advisor: 'Ms. Tobi', capacity: 40, enrolled: 36, shift: 'Morning' },
-  { level: 'JSS 2', arm: 'A', advisor: 'Mr. Idris', capacity: 40, enrolled: 39, shift: 'Morning' },
-  { level: 'SS 1', arm: 'Science A', advisor: 'Mrs. Ogun', capacity: 40, enrolled: 44, shift: 'Morning' },
-  { level: 'SS 1', arm: 'Arts A', advisor: 'Mr. Okoye', capacity: 40, enrolled: 34, shift: 'Morning' },
-  { level: 'SS 2', arm: 'Science B', advisor: 'Mrs. Bello', capacity: 40, enrolled: 46, shift: 'Morning' },
-  { level: 'SS 3', arm: 'Commercial', advisor: 'Mr. Musa', capacity: 40, enrolled: 42, shift: 'Morning' },
+  { level: 'JSS 1', arm: 'A', advisor: 'Mrs. Adekunle', capacity: 40, enrolled: 37, shift: 'Morning', profile: 'STEM' },
+  { level: 'JSS 1', arm: 'B', advisor: 'Mr. Lucas', capacity: 40, enrolled: 41, shift: 'Morning', profile: 'Mixed' },
+  { level: 'JSS 1', arm: 'C', advisor: 'Ms. Tobi', capacity: 40, enrolled: 36, shift: 'Morning', profile: 'Arts' },
+  { level: 'JSS 2', arm: 'A', advisor: 'Mr. Idris', capacity: 40, enrolled: 39, shift: 'Morning', profile: 'STEM' },
+  { level: 'SS 1', arm: 'Science A', advisor: 'Mrs. Ogun', capacity: 40, enrolled: 44, shift: 'Morning', profile: 'STEM' },
+  { level: 'SS 1', arm: 'Arts A', advisor: 'Mr. Okoye', capacity: 40, enrolled: 34, shift: 'Morning', profile: 'Arts' },
+  { level: 'SS 2', arm: 'Science B', advisor: 'Mrs. Bello', capacity: 40, enrolled: 46, shift: 'Morning', profile: 'STEM' },
+  { level: 'SS 3', arm: 'Commercial', advisor: 'Mr. Musa', capacity: 40, enrolled: 42, shift: 'Morning', profile: 'Commercial' },
 ]
 
 export function ClassesAndArms() {
+  const [newArmName, setNewArmName] = useState('SS2 Science C')
+  const [newArmLevel, setNewArmLevel] = useState('SS 2')
+  const [newArmAdvisor, setNewArmAdvisor] = useState('Mrs. Mabel Ojo')
+  const [newArmCapacity, setNewArmCapacity] = useState('38')
+
   const totalCapacity = useMemo(() => levelSnapshot.reduce((sum, level) => sum + level.capacity, 0), [])
   const totalEnrolled = useMemo(() => levelSnapshot.reduce((sum, level) => sum + level.enrolled, 0), [])
+  const totalBoarders = useMemo(() => Math.round(totalEnrolled * 0.28), [totalEnrolled])
 
   return (
     <div className="space-y-6">
@@ -52,9 +59,44 @@ export function ClassesAndArms() {
           <Button variant="outline">
             <Download className="h-4 w-4 mr-2" /> Export structure
           </Button>
-          <Button>
-            <UserPlus className="h-4 w-4 mr-2" /> Add class arm
-          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <UserPlus className="h-4 w-4 mr-2" /> Add class arm
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Launch new class arm</DialogTitle>
+                <DialogDescription>We pre-fill with enrollment signals from admissions and promotion pipelines.</DialogDescription>
+              </DialogHeader>
+              <div className="mt-4 space-y-3 text-sm">
+                <label className="flex flex-col gap-1">
+                  <span className="text-gray-600">Level</span>
+                  <Input value={newArmLevel} onChange={(e) => setNewArmLevel(e.target.value)} />
+                </label>
+                <label className="flex flex-col gap-1">
+                  <span className="text-gray-600">Arm name</span>
+                  <Input value={newArmName} onChange={(e) => setNewArmName(e.target.value)} />
+                </label>
+                <label className="flex flex-col gap-1">
+                  <span className="text-gray-600">Advisor</span>
+                  <Input value={newArmAdvisor} onChange={(e) => setNewArmAdvisor(e.target.value)} />
+                </label>
+                <label className="flex flex-col gap-1">
+                  <span className="text-gray-600">Capacity</span>
+                  <Input type="number" value={newArmCapacity} onChange={(e) => setNewArmCapacity(e.target.value)} />
+                </label>
+                <div className="rounded-2xl border border-dashed border-gray-200 p-3 text-xs text-gray-500">
+                  This wizard will clone timetable templates, auto-assign subject teachers, and notify admissions once you confirm.
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline">Save draft</Button>
+                  <Button>Create arm</Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -99,6 +141,16 @@ export function ClassesAndArms() {
             <p className="text-xs text-gray-500">Prioritize JSS1, SS2 Science, SS3 Commercial</p>
           </CardContent>
         </Card>
+        <Card className="sm:col-span-2 xl:col-span-1">
+          <CardContent className="p-4">
+            <div className="rounded-full bg-purple-50 text-purple-600 w-10 h-10 flex items-center justify-center">
+              <SplitSquareHorizontal className="h-5 w-5" />
+            </div>
+            <p className="text-xs text-gray-500 mt-3">Boarding footprint</p>
+            <p className="text-3xl font-semibold text-gray-900">{Math.round((totalBoarders / totalEnrolled) * 100)}%</p>
+            <p className="text-xs text-gray-500">{totalBoarders.toLocaleString()} of {totalEnrolled.toLocaleString()} learners reside on campus</p>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[3fr_2fr]">
@@ -135,6 +187,10 @@ export function ClassesAndArms() {
                       <p className="text-xs text-gray-500">Occupancy</p>
                       <p className={`text-sm font-semibold ${occupancy > 100 ? 'text-rose-600' : 'text-gray-900'}`}>{occupancy}%</p>
                     </div>
+                  </div>
+                  <div className="mt-3 grid gap-3 text-xs text-gray-500 sm:grid-cols-2">
+                    <span>Gender mix: <span className="text-gray-900 font-medium">{level.genderMix}</span></span>
+                    <span>Boarding split: <span className="text-gray-900 font-medium">{level.boardingSplit}</span></span>
                   </div>
                   <div className="mt-3 h-2 rounded-full bg-gray-100">
                     <div className={`h-2 rounded-full ${occupancy > 100 ? 'bg-rose-500' : 'bg-blue-500'}`} style={{ width: `${Math.min(occupancy, 120)}%` }} />
@@ -201,8 +257,16 @@ export function ClassesAndArms() {
                     <TableCell>{row.arm}</TableCell>
                     <TableCell>{row.advisor}</TableCell>
                     <TableCell>{row.capacity}</TableCell>
-                    <TableCell className={row.enrolled > row.capacity ? 'text-rose-600 font-semibold' : ''}>{row.enrolled}</TableCell>
+                    <TableCell className={`font-semibold ${row.enrolled > row.capacity ? 'text-rose-600' : 'text-gray-900'} flex items-center gap-2`}>
+                      {row.enrolled}
+                      {row.enrolled > row.capacity && (
+                        <span className="text-[11px] rounded-full bg-rose-50 text-rose-600 px-2 py-0.5">+{row.enrolled - row.capacity}</span>
+                      )}
+                    </TableCell>
                     <TableCell>{row.shift}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-[11px]">{row.profile}</Badge>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { BookOpen, GraduationCap, Layers3, Filter, Download, Sparkles, AlertTriangle } from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
@@ -22,15 +22,23 @@ const departmentSummary = [
 ]
 
 const subjects = [
-  { code: 'MAT-101', name: 'Mathematics', level: 'JSS 1-3', type: 'Core', teachers: 8, version: '2026.1', resources: 'Complete' },
-  { code: 'ENG-102', name: 'English Studies', level: 'JSS 1-3', type: 'Core', teachers: 7, version: '2025.4', resources: 'Complete' },
-  { code: 'BSC-203', name: 'Basic Science', level: 'JSS 2-3', type: 'Core', teachers: 6, version: '2026.0', resources: 'Review' },
-  { code: 'BUS-411', name: 'Entrepreneurship', level: 'SS 1-3', type: 'Elective', teachers: 4, version: '2024.2', resources: 'Upload' },
-  { code: 'LAN-325', name: 'French Immersion', level: 'JSS 2-3', type: 'Elective', teachers: 3, version: '2026.0', resources: 'Complete' },
-  { code: 'ART-502', name: 'Fine Arts', level: 'SS 1-2', type: 'Elective', teachers: 2, version: '2025.2', resources: 'Review' },
+  { code: 'MAT-101', name: 'Mathematics', level: 'JSS 1-3', type: 'Core', teachers: 8, version: '2026.1', resources: 'Complete', owner: 'Dr. Olajumoke', audit: 'Jan 2026', department: 'Sciences' },
+  { code: 'ENG-102', name: 'English Studies', level: 'JSS 1-3', type: 'Core', teachers: 7, version: '2025.4', resources: 'Complete', owner: 'Mr. Eze', audit: 'Dec 2025', department: 'Humanities' },
+  { code: 'BSC-203', name: 'Basic Science', level: 'JSS 2-3', type: 'Core', teachers: 6, version: '2026.0', resources: 'Review', owner: 'Dr. Olajumoke', audit: 'Feb 2026', department: 'Sciences' },
+  { code: 'BUS-411', name: 'Entrepreneurship', level: 'SS 1-3', type: 'Elective', teachers: 4, version: '2024.2', resources: 'Upload', owner: 'Mrs. Bello', audit: 'Oct 2025', department: 'Commercial' },
+  { code: 'LAN-325', name: 'French Immersion', level: 'JSS 2-3', type: 'Elective', teachers: 3, version: '2026.0', resources: 'Complete', owner: 'Ms. Iboroma', audit: 'Jan 2026', department: 'Languages' },
+  { code: 'ART-502', name: 'Fine Arts', level: 'SS 1-2', type: 'Elective', teachers: 2, version: '2025.2', resources: 'Review', owner: 'Mr. Eze', audit: 'Nov 2025', department: 'Humanities' },
 ]
 
+const departmentFilters = ['All', 'Sciences', 'Humanities', 'Commercial', 'Languages']
+
 export function SubjectsCatalog() {
+  const [activeDepartment, setActiveDepartment] = useState('All')
+
+  const filteredSubjects = useMemo(() =>
+    activeDepartment === 'All' ? subjects : subjects.filter((subject) => subject.department === activeDepartment),
+  [activeDepartment])
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -138,10 +146,17 @@ export function SubjectsCatalog() {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <Input placeholder="Search by subject name or code" className="lg:w-72" />
             <div className="flex flex-wrap gap-2 text-xs">
-              <Badge variant="outline">Core</Badge>
-              <Badge variant="outline">Elective</Badge>
-              <Badge variant="outline">STEM</Badge>
-              <Badge variant="outline">Arts</Badge>
+              {departmentFilters.map((dept) => (
+                <button
+                  key={dept}
+                  onClick={() => setActiveDepartment(dept)}
+                  className={`px-3 py-1 rounded-full border transition ${
+                    activeDepartment === dept ? 'border-blue-500 bg-blue-50 text-blue-700 font-medium' : 'border-transparent bg-gray-100 text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  {dept}
+                </button>
+              ))}
             </div>
           </div>
           <div className="rounded-2xl border border-gray-100 overflow-hidden">
@@ -154,11 +169,13 @@ export function SubjectsCatalog() {
                   <TableHead>Type</TableHead>
                   <TableHead>Teachers</TableHead>
                   <TableHead>Version</TableHead>
+                  <TableHead>Owner</TableHead>
+                  <TableHead>Last audit</TableHead>
                   <TableHead>Resources</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {subjects.map((subject) => (
+                {filteredSubjects.map((subject) => (
                   <TableRow key={subject.code}>
                     <TableCell className="font-semibold text-gray-900">{subject.code}</TableCell>
                     <TableCell>{subject.name}</TableCell>
@@ -170,7 +187,16 @@ export function SubjectsCatalog() {
                     </TableCell>
                     <TableCell>{subject.teachers}</TableCell>
                     <TableCell>{subject.version}</TableCell>
-                    <TableCell className={subject.resources === 'Upload' ? 'text-rose-600 font-semibold' : ''}>{subject.resources}</TableCell>
+                    <TableCell>{subject.owner}</TableCell>
+                    <TableCell>{subject.audit}</TableCell>
+                    <TableCell className={subject.resources === 'Upload' ? 'text-rose-600 font-semibold' : ''}>
+                      <div className="flex items-center gap-2">
+                        <span>{subject.resources}</span>
+                        {subject.resources === 'Upload' && (
+                          <Button size="xs" variant="outline" className="text-[11px] h-6">Request assets</Button>
+                        )}
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

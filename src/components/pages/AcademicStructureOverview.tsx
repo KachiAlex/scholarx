@@ -1,5 +1,5 @@
 import React from 'react'
-import { Layers, GraduationCap, ShieldCheck, BookText, Sparkles, Clock3, TrendingUp, Building } from 'lucide-react'
+import { Layers, GraduationCap, ShieldCheck, BookText, Sparkles, Clock3, TrendingUp, Building, Target, GitMerge, Megaphone } from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
@@ -41,14 +41,17 @@ const quickActions = [
     title: 'Launch a new stream',
     description: 'Clone timetables, allocate teachers, sync enrollment caps.',
     badge: 'Popular',
+    icon: GitMerge,
   },
   {
     title: 'Rebalance subject load',
     description: 'Shift electives between arms to meet class-size policy.',
+    icon: Target,
   },
   {
     title: 'Publish term brief',
     description: 'Notify parents and staff with curriculum updates.',
+    icon: Megaphone,
   },
 ]
 
@@ -58,18 +61,21 @@ const changeLog = [
     owner: 'Academics Board',
     impact: 'Applies to SS1-SS3',
     status: 'Awaiting Approval',
+    severity: 'warning',
   },
   {
     title: 'New language immersion arm',
     owner: 'Curriculum Office',
     impact: 'JSS 2 French stream',
     status: 'Scheduled',
+    severity: 'info',
   },
   {
     title: 'Merge Arts Arm B & C',
     owner: 'Principal',
     impact: 'Capacity update required',
     status: 'In review',
+    severity: 'risk',
   },
 ]
 
@@ -126,6 +132,37 @@ export function AcademicStructureOverview() {
             </Card>
           )
         })}
+        <Card>
+          <CardContent className="p-4 flex flex-col gap-3">
+            <p className="text-xs uppercase tracking-wide text-gray-500">Session health</p>
+            <div className="flex items-center gap-4">
+              <div
+                className="relative w-20 h-20 rounded-full"
+                style={{
+                  background: 'conic-gradient(#2563eb 0deg, #2563eb 240deg, #e2e8f0 240deg)'
+                }}
+              >
+                <div className="absolute inset-2 rounded-full bg-white flex items-center justify-center">
+                  <span className="text-lg font-semibold text-gray-900">86%</span>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 space-y-1">
+                <div className="flex items-center justify-between gap-4">
+                  <span>Curriculum ready</span>
+                  <span className="text-gray-900 font-medium">43 schools</span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span>Pending audits</span>
+                  <span className="text-amber-600 font-medium">7</span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <span>Blocked</span>
+                  <span className="text-rose-600 font-medium">2</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -142,7 +179,18 @@ export function AcademicStructureOverview() {
                   <p className="text-xs text-gray-500">{change.owner}</p>
                   <p className="text-xs text-gray-400 mt-1">{change.impact}</p>
                 </div>
-                <Badge variant="outline" className="text-xs">{change.status}</Badge>
+                <Badge
+                  variant={
+                    change.severity === 'risk'
+                      ? 'destructive'
+                      : change.severity === 'warning'
+                      ? 'warning'
+                      : 'default'
+                  }
+                  className="text-xs"
+                >
+                  {change.status}
+                </Badge>
               </div>
             ))}
           </CardContent>
@@ -183,7 +231,7 @@ export function AcademicStructureOverview() {
             {quickActions.map((action) => (
               <div key={action.title} className="rounded-2xl border border-gray-100 p-4 flex items-start gap-3">
                 <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                  <BookText className="h-5 w-5" />
+                  {action.icon ? <action.icon className="h-5 w-5" /> : <BookText className="h-5 w-5" />}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
@@ -191,6 +239,7 @@ export function AcademicStructureOverview() {
                     {action.badge && <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">{action.badge}</Badge>}
                   </div>
                   <p className="text-xs text-gray-500">{action.description}</p>
+                  <p className="text-[11px] text-gray-400 mt-1">Runs automation across timetable + notifications.</p>
                 </div>
                 <Button variant="ghost" size="sm" className="text-blue-600">
                   Start

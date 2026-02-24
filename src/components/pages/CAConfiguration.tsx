@@ -1,5 +1,5 @@
 import React from 'react'
-import { Gauge, ClipboardList, Edit3, CheckCircle2, AlertTriangle, Clock3 } from 'lucide-react'
+import { Gauge, ClipboardList, Edit3, CheckCircle2, AlertTriangle, Clock3, GitCompareArrows, Activity } from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
@@ -14,14 +14,39 @@ const assessmentWeights = [
 ]
 
 const overrideRequests = [
-  { term: 'First Term', subject: 'Further Math', reason: 'External curriculum alignment', status: 'Awaiting QA' },
-  { term: 'Second Term', subject: 'Basic Tech', reason: 'Project-based pilot', status: 'In review' },
+  { term: 'First Term', subject: 'Further Math', reason: 'External curriculum alignment', status: 'Awaiting QA', impact: 'Affects SS2 science stream', risk: 'High' },
+  { term: 'Second Term', subject: 'Basic Tech', reason: 'Project-based pilot', status: 'In review', impact: 'JSS3 technical cohort', risk: 'Medium' },
 ]
 
 const moderationChecks = [
   { label: 'Score normalization', detail: 'Auto-enabled for all SS classes', status: 'Active' },
   { label: 'Outlier detection', detail: 'Two classes flagged last term', status: 'Monitoring' },
   { label: 'Result approval SLA', detail: '48hr SLA across departments', status: 'Healthy' },
+]
+
+const scenarioComparison = [
+  {
+    label: 'Current template',
+    tests: 25,
+    assignments: 15,
+    projects: 10,
+    exams: 50,
+    effect: 'Balanced weighting for CA-heavy schools',
+  },
+  {
+    label: 'Proposed STEM pilot',
+    tests: 20,
+    assignments: 20,
+    projects: 15,
+    exams: 45,
+    effect: 'Adds more project signals for Maker labs',
+  },
+]
+
+const auditTrail = [
+  { actor: 'Dr. Tolu Adisa', role: 'Academic Head', action: 'Published CA template', timestamp: 'Jan 08, 2026 – 08:42' },
+  { actor: 'QA Desk', role: 'Quality Assurance', action: 'Reviewed override backlog', timestamp: 'Jan 15, 2026 – 16:12' },
+  { actor: 'Assessment Ops', role: 'Operations', action: 'Synced template to all classes', timestamp: 'Jan 16, 2026 – 09:27' },
 ]
 
 export function CAConfiguration() {
@@ -129,6 +154,33 @@ export function CAConfiguration() {
         </CardContent>
       </Card>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Scenario comparison</CardTitle>
+          <CardDescription>Preview impact before committing template changes.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 sm:grid-cols-2">
+          {scenarioComparison.map((scenario) => (
+            <div key={scenario.label} className="rounded-2xl border border-gray-100 p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{scenario.label}</p>
+                  <p className="text-xs text-gray-500">{scenario.effect}</p>
+                </div>
+                <GitCompareArrows className="h-4 w-4 text-blue-500" />
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-xs text-gray-500">
+                <span>Tests: <span className="text-gray-900 font-medium">{scenario.tests}%</span></span>
+                <span>Assignments: <span className="text-gray-900 font-medium">{scenario.assignments}%</span></span>
+                <span>Projects: <span className="text-gray-900 font-medium">{scenario.projects}%</span></span>
+                <span>Exams: <span className="text-gray-900 font-medium">{scenario.exams}%</span></span>
+              </div>
+              <Button variant="outline" size="sm">Simulate</Button>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
@@ -146,6 +198,12 @@ export function CAConfiguration() {
                   <Badge variant="secondary" className="text-[10px] uppercase tracking-wide">{request.status}</Badge>
                 </div>
                 <p className="text-xs text-gray-500 mt-2">{request.reason}</p>
+                <div className="mt-2 text-xs text-gray-500 flex flex-wrap gap-3">
+                  <span className="font-medium text-gray-900">Impact: {request.impact}</span>
+                  <span className={request.risk === 'High' ? 'text-rose-600 font-semibold' : 'text-amber-600 font-semibold'}>
+                    Risk: {request.risk}
+                  </span>
+                </div>
                 <div className="mt-3 flex gap-2">
                   <Button size="sm" variant="outline">Review</Button>
                   <Button size="sm" variant="ghost" className="text-rose-600">Reject</Button>
@@ -174,6 +232,27 @@ export function CAConfiguration() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Publishing trail</CardTitle>
+          <CardDescription>Every edit is logged for compliance and rollback.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {auditTrail.map((entry) => (
+            <div key={entry.timestamp} className="rounded-2xl border border-gray-100 p-4 flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{entry.actor}</p>
+                <p className="text-xs text-gray-500">{entry.role}</p>
+              </div>
+              <div className="text-sm text-gray-600 flex-1">
+                {entry.action}
+              </div>
+              <p className="text-xs text-gray-400">{entry.timestamp}</p>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   )
 }
