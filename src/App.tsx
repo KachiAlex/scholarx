@@ -45,6 +45,10 @@ import { TaskManagement } from './components/pages/TaskManagement';
 import { SchoolBranding } from './components/pages/SchoolBranding';
 import { ReportTemplates } from './components/pages/ReportTemplates';
 import { GradingScale } from './components/pages/GradingScale';
+import { PaymentGateway } from './components/pages/PaymentGateway';
+import { BiometricDevices } from './components/pages/BiometricDevices';
+import { LMSIntegration } from './components/pages/LMSIntegration';
+import { APIManagement } from './components/pages/APIManagement';
 import { SuperAdminPortal } from './components/pages/SuperAdminPortal';
 import { LoginRole } from './components/auth/LoginPanel';
 import { AccessPortalPage } from './components/pages/AccessPortalPage';
@@ -165,6 +169,14 @@ export default function App() {
         return <SystemAlerts />;
       case 'task-management':
         return <TaskManagement />;
+      case 'payment-gateway':
+        return <PaymentGateway />;
+      case 'biometric-devices':
+        return <BiometricDevices />;
+      case 'lms-integration':
+        return <LMSIntegration />;
+      case 'api-management':
+        return <APIManagement />;
       case 'branding':
         return <SchoolBranding />;
       case 'report-templates':
