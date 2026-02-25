@@ -42,6 +42,9 @@ import { BackupRestore } from './components/pages/BackupRestore';
 import { PendingApprovals } from './components/pages/PendingApprovals';
 import { SystemAlerts } from './components/pages/SystemAlerts';
 import { TaskManagement } from './components/pages/TaskManagement';
+import { SchoolBranding } from './components/pages/SchoolBranding';
+import { ReportTemplates } from './components/pages/ReportTemplates';
+import { GradingScale } from './components/pages/GradingScale';
 import { SuperAdminPortal } from './components/pages/SuperAdminPortal';
 import { LoginRole } from './components/auth/LoginPanel';
 import { AccessPortalPage } from './components/pages/AccessPortalPage';
@@ -162,6 +165,12 @@ export default function App() {
         return <SystemAlerts />;
       case 'task-management':
         return <TaskManagement />;
+      case 'branding':
+        return <SchoolBranding />;
+      case 'report-templates':
+        return <ReportTemplates />;
+      case 'grading-scale':
+        return <GradingScale />;
       case 'system-settings':
         return <SystemSettings />;
       case 'school-profile':
