@@ -53,6 +53,10 @@ import { OfflineCBTSync } from './components/pages/OfflineCBTSync';
 import { ExamItemAnalysis } from './components/pages/ExamItemAnalysis';
 import { PredictiveRiskAlerts } from './components/pages/PredictiveRiskAlerts';
 import { CertificateVerification } from './components/pages/CertificateVerification';
+import { SystemHealth } from './components/pages/SystemHealth';
+import { ErrorLogs } from './components/pages/ErrorLogs';
+import { HelpCenter } from './components/pages/HelpCenter';
+import { SupportTickets } from './components/pages/SupportTickets';
 import { SuperAdminPortal } from './components/pages/SuperAdminPortal';
 import { LoginRole } from './components/auth/LoginPanel';
 import { AccessPortalPage } from './components/pages/AccessPortalPage';
@@ -189,6 +193,14 @@ export default function App() {
         return <PredictiveRiskAlerts />;
       case 'certificate-verification':
         return <CertificateVerification />;
+      case 'system-health':
+        return <SystemHealth />;
+      case 'error-logs':
+        return <ErrorLogs />;
+      case 'help-center':
+        return <HelpCenter />;
+      case 'support-tickets':
+        return <SupportTickets />;
       case 'branding':
         return <SchoolBranding />;
       case 'report-templates':
