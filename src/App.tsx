@@ -49,6 +49,10 @@ import { PaymentGateway } from './components/pages/PaymentGateway';
 import { BiometricDevices } from './components/pages/BiometricDevices';
 import { LMSIntegration } from './components/pages/LMSIntegration';
 import { APIManagement } from './components/pages/APIManagement';
+import { OfflineCBTSync } from './components/pages/OfflineCBTSync';
+import { ExamItemAnalysis } from './components/pages/ExamItemAnalysis';
+import { PredictiveRiskAlerts } from './components/pages/PredictiveRiskAlerts';
+import { CertificateVerification } from './components/pages/CertificateVerification';
 import { SuperAdminPortal } from './components/pages/SuperAdminPortal';
 import { LoginRole } from './components/auth/LoginPanel';
 import { AccessPortalPage } from './components/pages/AccessPortalPage';
@@ -177,6 +181,14 @@ export default function App() {
         return <LMSIntegration />;
       case 'api-management':
         return <APIManagement />;
+      case 'offline-cbt':
+        return <OfflineCBTSync />;
+      case 'item-analysis':
+        return <ExamItemAnalysis />;
+      case 'predictive-alerts':
+        return <PredictiveRiskAlerts />;
+      case 'certificate-verification':
+        return <CertificateVerification />;
       case 'branding':
         return <SchoolBranding />;
       case 'report-templates':
